@@ -34,11 +34,12 @@
 #include <EGLUtils.h>
 //#include "test.h"
 //#include "test_monkey.h"
-//#include "test_sphere.h"
+#include "test_sphere.h"
 //#include "test_Torus2.h"
-#include "test_dragon.h"
-#include "test_ori.h"
-#include "Index_ad.h"
+//#include "test_dragon.h"
+//#include "test_jeep.h"
+//#include "test_ori.h"
+//#include "Index_ad.h"
 #include "matrix.h"
 
 using namespace android;
@@ -274,6 +275,82 @@ void main()\
 }\n";
 */
 
+static const char gGeoShader1[] = 
+"#version 320 es\n"
+"\n"
+"layout (triangles_adjacency) in;\
+layout (triangle_strip, max_vertices = 18) out;\
+uniform highp mat4 mvp;\
+precision highp float;\
+uniform vec3 light;\
+in vec4 PosL[];\
+float offset = 0.0;\
+float Infinite_W = 0.1;\
+void main()\
+{\
+    vec4 v0 = PosL[0];\
+		vec4 v1 = PosL[1];\
+		vec4 v2 = PosL[2];\
+    vec4 v3 = PosL[3];\
+		vec4 v4 = PosL[4];\
+		vec4 v5 = PosL[5];\
+		vec3 nor1 = cross(vec3(v4.xyz - v0.xyz), vec3(v2.xyz-v0.xyz));\
+		vec3 nor2 = cross(vec3(v0.xyz - v1.xyz), vec3(v2.xyz-v1.xyz));\
+		vec3 nor3 = cross(vec3(v4.xyz - v2.xyz), vec3(v3.xyz-v2.xyz));\
+		vec3 nor4 = cross(vec3(v5.xyz - v0.xyz), vec3(v4.xyz-v0.xyz));\
+		if(dot(nor1, light) > 0.0 ) {\
+			if(dot(nor2, light) <= 0.0) {\
+		        gl_Position = mvp*vec4(PosL[2].xyz + light*vec3(offset), 1.0);\
+		        EmitVertex();\
+		        gl_Position = mvp*vec4(light, Infinite_W);\
+		        EmitVertex();\
+		        gl_Position = mvp*vec4(PosL[0].xyz + light*vec3(offset), 1.0);\
+		        EmitVertex();\
+		        EndPrimitive();\
+		        gl_Position = mvp*vec4(light, Infinite_W);\
+		        EmitVertex();\
+		        gl_Position = mvp*vec4(light, Infinite_W);\
+		        EmitVertex();\
+		        gl_Position = mvp*vec4(PosL[0].xyz + light*vec3(offset), 1.0);\
+		        EmitVertex();\
+		        EndPrimitive();\
+			}\
+			if(dot(nor3, light) <= 0.0) {\
+		        gl_Position = mvp*vec4(PosL[4].xyz + light*vec3(offset), 1.0);\
+		        EmitVertex();\
+		        gl_Position = mvp*vec4(light, Infinite_W);\
+		        EmitVertex();\
+		        gl_Position = mvp*vec4(PosL[2].xyz + light*vec3(offset), 1.0);\
+		        EmitVertex();\
+		        EndPrimitive();\
+		        gl_Position = mvp*vec4(light, Infinite_W);\
+		        EmitVertex();\
+		        gl_Position = mvp*vec4(light, Infinite_W);\
+		        EmitVertex();\
+		        gl_Position = mvp*vec4(PosL[2].xyz + light*vec3(offset), 1.0);\
+		        EmitVertex();\
+		        EndPrimitive();\
+			}\
+			if(dot(nor4, light) <= 0.0) {\
+		        gl_Position = mvp*vec4(PosL[0].xyz + light*vec3(offset), 1.0);\
+		        EmitVertex();\
+		        gl_Position = mvp*vec4(light, Infinite_W);\
+		        EmitVertex();\
+		        gl_Position = mvp*vec4(PosL[4].xyz + light*vec3(offset), 1.0);\
+		        EmitVertex();\
+		        EndPrimitive();\
+		        gl_Position = mvp*vec4(light, Infinite_W);\
+		        EmitVertex();\
+		        gl_Position = mvp*vec4(light, Infinite_W);\
+		        EmitVertex();\
+		        gl_Position = mvp*vec4(PosL[4].xyz + light*vec3(offset), 1.0);\
+		        EmitVertex();\
+		        EndPrimitive();\
+			}\
+		}\
+}\n";
+
+#if 1
 static const char gGeoShader[] = 
 "#version 320 es\n"
 "\n"
@@ -283,79 +360,133 @@ uniform highp mat4 mvp;\
 precision highp float;\
 uniform vec3 light;\
 in vec4 PosL[];\
+float offset = 0.0;\
+float Infinite_W = 1000.0;\
 void main()\
 {\
-        vec4 v0 = PosL[0];\
+    vec4 v0 = PosL[0];\
 		vec4 v1 = PosL[1];\
 		vec4 v2 = PosL[2];\
-        vec4 v3 = PosL[3];\
+    vec4 v3 = PosL[3];\
 		vec4 v4 = PosL[4];\
 		vec4 v5 = PosL[5];\
-		vec3 nor1 = cross(vec3(v4.xyz - v0.xyz), vec3(v2.xyz-v0.xyz));\
-		vec3 nor2 = cross(vec3(v0.xyz - v1.xyz), vec3(v2.xyz-v1.xyz));\
-		vec3 nor3 = cross(vec3(v4.xyz - v2.xyz), vec3(v3.xyz-v2.xyz));\
-		vec3 nor4 = cross(vec3(v5.xyz - v0.xyz), vec3(v4.xyz-v0.xyz));\
+		vec3 nor1 = cross(vec3(v2.xyz-v0.xyz), vec3(v4.xyz-v0.xyz));\
+		vec3 nor2 = cross(vec3(v2.xyz-v1.xyz), vec3(v0.xyz-v1.xyz));\
+		vec3 nor3 = cross(vec3(v3.xyz-v2.xyz), vec3(v4.xyz-v2.xyz));\
+		vec3 nor4 = cross(vec3(v4.xyz-v0.xyz), vec3(v5.xyz-v0.xyz));\
 		if(dot(nor1, light) > 0.0 ) {\
 			if(dot(nor2, light) <= 0.0) {\
-		        gl_Position = mvp*vec4(PosL[2].xyz + light*vec3(0.1), 1.0);\
+		        gl_Position = mvp*vec4(PosL[0].xyz + light*vec3(offset), 1.0);\
 		        EmitVertex();\
-		        gl_Position = mvp*vec4(light, 0.0);\
+		        gl_Position = mvp*vec4(PosL[0].xyz + light*vec3(Infinite_W), 1.0);\
 		        EmitVertex();\
-		        gl_Position = mvp*vec4(PosL[0].xyz + light*vec3(0.1), 1.0);\
+		        gl_Position = mvp*vec4(PosL[2].xyz + light*vec3(offset), 1.0);\
 		        EmitVertex();\
 		        EndPrimitive();\
-		        gl_Position = mvp*vec4(light, 0.0);\
+		        gl_Position = mvp*vec4(PosL[0].xyz + light*vec3(Infinite_W), 1.0);\
 		        EmitVertex();\
-		        gl_Position = mvp*vec4(light, 0.0);\
+		        gl_Position = mvp*vec4(PosL[2].xyz + light*vec3(Infinite_W), 1.0);\
 		        EmitVertex();\
-		        gl_Position = mvp*vec4(PosL[0].xyz + light*vec3(0.1), 1.0);\
+		        gl_Position = mvp*vec4(PosL[2].xyz + light*vec3(offset), 1.0);\
 		        EmitVertex();\
 		        EndPrimitive();\
 			}\
 			if(dot(nor3, light) <= 0.0) {\
-		        gl_Position = mvp*vec4(PosL[4].xyz + light*vec3(0.1), 1.0);\
+		        gl_Position = mvp*vec4(PosL[2].xyz + light*vec3(offset), 1.0);\
 		        EmitVertex();\
-		        gl_Position = mvp*vec4(light, 0.0);\
+		        gl_Position = mvp*vec4(PosL[2].xyz + light*vec3(Infinite_W), 1.0);\
 		        EmitVertex();\
-		        gl_Position = mvp*vec4(PosL[2].xyz + light*vec3(0.1), 1.0);\
+		        gl_Position = mvp*vec4(PosL[4].xyz + light*vec3(offset), 1.0);\
 		        EmitVertex();\
 		        EndPrimitive();\
-		        gl_Position = mvp*vec4(light, 0.0);\
+		        gl_Position = mvp*vec4(PosL[2].xyz + light*vec3(Infinite_W), 1.0);\
 		        EmitVertex();\
-		        gl_Position = mvp*vec4(light, 0.0);\
+		        gl_Position = mvp*vec4(PosL[4].xyz + light*vec3(Infinite_W), 1.0);\
 		        EmitVertex();\
-		        gl_Position = mvp*vec4(PosL[2].xyz + light*vec3(0.1), 1.0);\
+		        gl_Position = mvp*vec4(PosL[4].xyz + light*vec3(offset), 1.0);\
 		        EmitVertex();\
 		        EndPrimitive();\
 			}\
 			if(dot(nor4, light) <= 0.0) {\
-		        gl_Position = mvp*vec4(PosL[0].xyz + light*vec3(0.1), 1.0);\
+		        gl_Position = mvp*vec4(PosL[4].xyz + light*vec3(offset), 1.0);\
 		        EmitVertex();\
-		        gl_Position = mvp*vec4(light, 0.0);\
+		        gl_Position = mvp*vec4(PosL[4].xyz + light*vec3(Infinite_W), 1.0);\
 		        EmitVertex();\
-		        gl_Position = mvp*vec4(PosL[4].xyz + light*vec3(0.1), 1.0);\
+		        gl_Position = mvp*vec4(PosL[0].xyz + light*vec3(offset), 1.0);\
 		        EmitVertex();\
 		        EndPrimitive();\
-		        gl_Position = mvp*vec4(light, 0.0);\
+		        gl_Position = mvp*vec4(PosL[4].xyz + light*vec3(Infinite_W), 1.0);;\
 		        EmitVertex();\
-		        gl_Position = mvp*vec4(light, 0.0);\
+		        gl_Position = mvp*vec4(PosL[0].xyz + light*vec3(Infinite_W), 1.0);;\
 		        EmitVertex();\
-		        gl_Position = mvp*vec4(PosL[4].xyz + light*vec3(0.1), 1.0);\
+		        gl_Position = mvp*vec4(PosL[0].xyz + light*vec3(offset), 1.0);\
+		        EmitVertex();\
+		        EndPrimitive();\
+			}\
+		}\
+}\n";
+#else
+
+static const char gGeoShader[] = 
+"#version 320 es\n"
+"\n"
+"layout (triangles_adjacency) in;\
+layout (line_strip, max_vertices = 18) out;\
+uniform highp mat4 mvp;\
+precision highp float;\
+uniform vec3 light;\
+in vec4 PosL[];\
+float offset = 0.0;\
+float Infinite_W = 1000.0;\
+void main()\
+{\
+    vec4 v0 = PosL[0];\
+		vec4 v1 = PosL[1];\
+		vec4 v2 = PosL[2];\
+    vec4 v3 = PosL[3];\
+		vec4 v4 = PosL[4];\
+		vec4 v5 = PosL[5];\
+		vec3 nor1 = cross(vec3(v2.xyz-v0.xyz), vec3(v4.xyz-v0.xyz));\
+		vec3 nor2 = cross(vec3(v2.xyz-v1.xyz), vec3(v0.xyz-v1.xyz));\
+		vec3 nor3 = cross(vec3(v3.xyz-v2.xyz), vec3(v4.xyz-v2.xyz));\
+		vec3 nor4 = cross(vec3(v4.xyz-v0.xyz), vec3(v5.xyz-v0.xyz));\
+		if(dot(nor1, light) > 0.0 ) {\
+			if(dot(nor2, light) <= 0.0) {\
+		        gl_Position = mvp*vec4(PosL[0].xyz + light*vec3(offset), 1.0);\
+		        EmitVertex();\
+		        gl_Position = mvp*vec4(PosL[2].xyz + light*vec3(offset), 1.0);\
+		        EmitVertex();\
+		        EndPrimitive();\
+			}\
+			if(dot(nor3, light) <= 0.0) {\
+		        gl_Position = mvp*vec4(PosL[2].xyz + light*vec3(offset), 1.0);\
+		        EmitVertex();\
+		        gl_Position = mvp*vec4(PosL[4].xyz + light*vec3(offset), 1.0);\
+		        EmitVertex();\
+		        EndPrimitive();\
+			}\
+			if(dot(nor4, light) <= 0.0) {\
+		        gl_Position = mvp*vec4(PosL[4].xyz + light*vec3(offset), 1.0);\
+		        EmitVertex();\
+		        gl_Position = mvp*vec4(PosL[0].xyz + light*vec3(offset), 1.0);\
 		        EmitVertex();\
 		        EndPrimitive();\
 			}\
 		}\
 }\n";
 
+#endif
 
 static const char gFragmentShader[] = 
 	"#version 320 es\n"
 	"\n"
     "precision highp float;\n"
     "out vec4 color;\n"
-    "uniform vec4 color_in;\n"
     "void main() {\n"
-    "  color = color_in;\n"
+    "  if(gl_FrontFacing)\n"
+    "      color = vec4(1.0);\n"
+    "  else\n"
+    "      color = vec4(1.0, 0.0, 0.0, 1.0);\n"
     "}\n";
 
 static const char gVertexShader_ori[] = 
@@ -506,45 +637,100 @@ float mvp[16];
 #define PI 3.1415926
 static float rotate = 100;
 
-void drawSence(int ShadowPass) {
-	glUseProgram(gProgram1);
-	
-	multiply_matrix(t, s, m);
-	multiply_matrix(v, m, mv);
-	multiply_matrix(p, mv, mvp);
+void drawSence() {
+		glUseProgram(gProgram1);
 
-    checkGlError("glUseProgram");
+		multiply_matrix(t, s, m);
+		multiply_matrix(v, m, mv);
+		multiply_matrix(p, mv, mvp);
 
-    glVertexAttribPointer(glGetAttribLocation (gProgram1, "vPosition"), 3, GL_FLOAT, GL_FALSE, 0, gTriangleVertices);
-    checkGlError("glVertexAttribPointer");
-    glEnableVertexAttribArray(glGetAttribLocation (gProgram1, "vPosition"));
-    checkGlError("glEnableVertexAttribArray");
-    if(ShadowPass)
-    	glUniform4f( glGetUniformLocation (gProgram1, "color"), 0.25, 0.25, 0.25, 1.0);
-    else
-    	glUniform4f( glGetUniformLocation (gProgram1, "color"), 0.5, 0.5, 0.5, 1.0);
-    glUniformMatrix4fv( glGetUniformLocation (gProgram1, "mvp"), 1, GL_FALSE, mvp);
-    
-    //Draw the floor
-    glDrawArrays(GL_TRIANGLES, 0, 6);
-    checkGlError("glDrawArrays1");		
-	
-	
- 	rotate_matrix(rotate, 0, 1, 0, m);
-	multiply_matrix(v, m, mv);
-	multiply_matrix(p, mv, mvp);
-	glVertexAttribPointer(glGetAttribLocation (gProgram1, "vPosition"), 3, GL_FLOAT, GL_FALSE, 0, ori);
-    glEnableVertexAttribArray(glGetAttribLocation (gProgram1, "vPosition"));
-    checkGlError("glEnableVertexAttribArray");
-    if(ShadowPass)
-    	glUniform4f( glGetUniformLocation (gProgram1, "color"), 0.5, 0.25, 0.25, 1.0);
-    else
-    	glUniform4f( glGetUniformLocation (gProgram1, "color"), 1.0, 0.5, 0.5, 1.0);
-    glUniformMatrix4fv( glGetUniformLocation (gProgram1, "mvp"), 1, GL_FALSE, mvp);
-	
-	//Draw the object
-    glDrawArrays(GL_TRIANGLES, 0, ver_num);
-    checkGlError("glDrawArrays0");    
+		checkGlError("glUseProgram");
+
+		glVertexAttribPointer(glGetAttribLocation (gProgram1, "vPosition"), 3, GL_FLOAT, GL_FALSE, 0, gTriangleVertices);
+		checkGlError("glVertexAttribPointer");
+		glEnableVertexAttribArray(glGetAttribLocation (gProgram1, "vPosition"));
+		checkGlError("glEnableVertexAttribArray");
+
+		glUniform4f( glGetUniformLocation (gProgram1, "color"), 0.5, 0.5, 0.5, 1.0);
+		glUniformMatrix4fv( glGetUniformLocation (gProgram1, "mvp"), 1, GL_FALSE, mvp);
+
+		//Draw the floor
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		checkGlError("glDrawArrays1");		
+
+
+		rotate_matrix(rotate, 0, 1, 0, m);
+		multiply_matrix(v, m, mv);
+		multiply_matrix(p, mv, mvp);
+		glVertexAttribPointer(glGetAttribLocation (gProgram1, "vPosition"), 3, GL_FLOAT, GL_FALSE, 0, ori);
+		glEnableVertexAttribArray(glGetAttribLocation (gProgram1, "vPosition"));
+		checkGlError("glEnableVertexAttribArray");
+		
+		glUniform4f( glGetUniformLocation (gProgram1, "color"), 1.0, 0.5, 0.5, 1.0);
+				
+		glUniformMatrix4fv( glGetUniformLocation (gProgram1, "mvp"), 1, GL_FALSE, mvp);
+
+		//Draw the object
+		glDrawArrays(GL_TRIANGLES, 0, ver_num);
+		checkGlError("glDrawArrays0");
+}
+
+
+void drawSenceShadow() {
+		glUseProgram(gProgram1);
+
+#if 1
+		multiply_matrix(t, s, m);
+		multiply_matrix(v, m, mv);
+		multiply_matrix(p, mv, mvp);
+
+		checkGlError("glUseProgram");
+
+		glVertexAttribPointer(glGetAttribLocation (gProgram1, "vPosition"), 3, GL_FLOAT, GL_FALSE, 0, gTriangleVertices);
+		checkGlError("glVertexAttribPointer");
+		glEnableVertexAttribArray(glGetAttribLocation (gProgram1, "vPosition"));
+		checkGlError("glEnableVertexAttribArray");
+
+		glUniform4f( glGetUniformLocation (gProgram1, "color"), 0.25, 0.25, 0.25, 1.0);
+		glUniformMatrix4fv( glGetUniformLocation (gProgram1, "mvp"), 1, GL_FALSE, mvp);
+
+		//Draw the floor
+
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		checkGlError("glDrawArrays1");		
+
+
+		rotate_matrix(rotate, 0, 1, 0, m);
+		multiply_matrix(v, m, mv);
+		multiply_matrix(p, mv, mvp);
+		glVertexAttribPointer(glGetAttribLocation (gProgram1, "vPosition"), 3, GL_FLOAT, GL_FALSE, 0, ori);
+		glEnableVertexAttribArray(glGetAttribLocation (gProgram1, "vPosition"));
+		checkGlError("glEnableVertexAttribArray");
+
+		glUniform4f( glGetUniformLocation (gProgram1, "color"), 0.5, 0.25, 0.25, 1.0);
+
+				
+		glUniformMatrix4fv( glGetUniformLocation (gProgram1, "mvp"), 1, GL_FALSE, mvp);
+
+		//Draw the object
+		glDrawArrays(GL_TRIANGLES, 0, ver_num);
+		checkGlError("glDrawArrays0");
+#else
+		{
+				glDisable(GL_DEPTH_TEST);
+				setIdentity(mvp);
+				glVertexAttribPointer(glGetAttribLocation (gProgram1, "vPosition"), 3, GL_FLOAT, GL_FALSE, 0, gFullScareenVertices);
+				glEnableVertexAttribArray(glGetAttribLocation (gProgram1, "vPosition"));
+				checkGlError("glEnableVertexAttribArray");
+				
+				glUniform4f( glGetUniformLocation (gProgram1, "color"), 0.5, 0.25, 0.25, 1.0);
+				glUniformMatrix4fv( glGetUniformLocation (gProgram1, "mvp"), 1, GL_FALSE, mvp);
+
+				//Draw the object
+				glDrawArrays(GL_TRIANGLE_FAN, 0, 4);			
+			
+		}
+#endif
 }
 /*
 void drawStencil() {
@@ -573,76 +759,85 @@ void drawStencil() {
     checkGlError("glDrawArrays2");  	
 }*/
 void drawStencil() {
- 	//Update the stencil buffer
- 	rotate_matrix(rotate, 0, 1, 0, m);
-	multiply_matrix(v, m, mv);
-	multiply_matrix(p, mv, mvp);
-	   
-    glUseProgram(gProgram);
-    glUniformMatrix4fv( glGetUniformLocation (gProgram, "mvp"), 1, GL_FALSE, mvp);
-    glUniform3f( glGetUniformLocation (gProgram, "light"), 0.0, -1.0, 1.0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, data_adjacency);
-    glEnableVertexAttribArray(1);
-    
-    glDepthMask(GL_FALSE);
-    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-    glEnable(GL_STENCIL_TEST);
-    glStencilFunc(GL_ALWAYS, 0, 0xff);
-    
-    glDisable(GL_CULL_FACE);
-    
-	glStencilOpSeparate(GL_BACK, GL_KEEP, GL_INCR_WRAP, GL_KEEP);
-	glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_DECR_WRAP, GL_KEEP);       
+		//Update the stencil buffer
+		rotate_matrix(rotate, 0, 1, 0, m);
+		multiply_matrix(v, m, mv);
+		multiply_matrix(p, mv, mvp);
 
-    glDrawArrays(GL_TRIANGLES_ADJACENCY, 0, ver_num*2);
-    checkGlError("glDrawArrays2");  	
+		glUseProgram(gProgram);
+		glUniformMatrix4fv( glGetUniformLocation (gProgram, "mvp"), 1, GL_FALSE, mvp);
+		glUniform3f( glGetUniformLocation (gProgram, "light"), 0.0, -1.0, 0.0);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, data_adjacency);
+		glEnableVertexAttribArray(1);
+
+		glDepthMask(GL_FALSE);
+		glEnable(GL_STENCIL_TEST);
+		glStencilFunc(GL_ALWAYS, 0, 0xff);
+
+		glDisable(GL_CULL_FACE);
+		//glEnable(GL_CULL_FACE);//FAKE
+		//glCullFace(GL_FRONT);
+		//glDisable(GL_DEPTH_TEST);//FAKE
+
+		glStencilOpSeparate(GL_BACK, GL_KEEP, GL_INCR_WRAP, GL_KEEP);
+		glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_DECR_WRAP, GL_KEEP);       
+
+		glEnable(GL_POLYGON_OFFSET_FILL);
+		glPolygonOffset(0.0f, -1.0f);
+
+		glDrawArrays(GL_TRIANGLES_ADJACENCY, 0, ver_num*2);
+		glDisable(GL_POLYGON_OFFSET_FILL);
+		checkGlError("glDrawArrays2");  	
 }
 
 
 void renderFrame() {
-	//rotate +=0.1;
-	rotate_matrix(rotate, 0, 1, 0, r);
-	setTranslate(t, 0, -3, 0);
-	setScaling(s, 20.0, 20.0, 20.0);
-	setLookAt(v, 0, 20, 30, 0, 0, 0, 0, 1, 0);
-	perspective_matrix(PI/6, 1, 0.9, 100000.0, p);
-	
-    {
-    	(void)gTriangleVertices;
-    	(void)m;
-    	(void)mv;
-    	(void)gFullScareenVertices;
-    }
+		//rotate +=0.1;
+		rotate_matrix(rotate, 0, 1, 0, r);
+		setTranslate(t, 0, -3, 0);
+		setScaling(s, 20.0, 20.0, 20.0);
+		setLookAt(v, 0, 20, 30, 0, 0, 0, 0, 1, 0);
+		perspective_matrix(PI/6, 1, 0.9, 100000.0, p);
+
+		{
+			(void)gTriangleVertices;
+			(void)m;
+			(void)mv;
+			(void)gFullScareenVertices;
+			(void)gGeoShader1;
+		}
+
+		glEnable(GL_DEPTH_TEST);
+		glDisable(GL_STENCIL_TEST);
+		glDepthMask(GL_TRUE);
+
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClearStencil(0);
+		glClearDepthf(1.0);
+		glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+		//glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);//FAKE
+		drawSence();
+
 		
-	glEnable(GL_DEPTH_TEST);
-	glDisable(GL_STENCIL_TEST);
-	glDepthMask(GL_TRUE);
-    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+		//glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);//FAKE
+		drawStencil();
 
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glClearStencil(0);
-    glClearDepthf(1.0);
-    glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+		//Draw the shadow
+		glDepthMask(GL_FALSE);
+		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LEQUAL);  	
+		glEnable(GL_CULL_FACE);
 
-    
-	drawSence(false);
+		//glDisable(GL_STENCIL_TEST);
+		//drawSence(false);
 
-	drawStencil();
- 
-   
-   //Draw the shadow
-    glDepthMask(GL_FALSE);
-    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LEQUAL);  	
-  	glEnable(GL_CULL_FACE);
-    
-   	glDisable(GL_STENCIL_TEST);
-	drawSence(false);
-
-   	glEnable(GL_STENCIL_TEST);
-   	glStencilFunc(GL_NOTEQUAL, 0x0, 0xFF);
-	drawSence(true);
+		glEnable(GL_STENCIL_TEST);
+		glStencilFunc(GL_NOTEQUAL, 0x0, 0xFF);
+		drawSenceShadow();
 }
 
 int main(int /*argc*/, char** /*argv*/) {
